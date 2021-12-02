@@ -23,7 +23,9 @@ defmodule Dive do
   def dive2([], pos), do: pos
   def dive2(["down", n | rest], {x, y, aim}), do: dive2(rest, {x, y, aim + int(n)})
   def dive2(["up", n | rest], {x, y, aim}), do: dive2(rest, {x, y, aim - int(n)})
-  def dive2(["forward", n | rest], {x, y, aim}), do: dive2(rest, {x + int(n), y + int(n) * aim, aim})
+
+  def dive2(["forward", n | rest], {x, y, aim}),
+    do: dive2(rest, {x + int(n), y + int(n) * aim, aim})
 
   defp int(n), do: String.to_integer(n)
 
