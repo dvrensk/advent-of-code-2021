@@ -20,15 +20,9 @@ defmodule SonarSweep do
   5
   """
   def count_in_windows(list) do
-    collect_in_threes(list)
+    list
+    |> Enum.chunk_every(3, 1, :discard)
+    |> Enum.map(&Enum.sum/1)
     |> count_increases()
-  end
-
-  def collect_in_threes([a, b, c | rest]) do
-    [a+b+c | collect_in_threes([b,c | rest])]
-  end
-
-  def collect_in_threes(_) do
-    []
   end
 end

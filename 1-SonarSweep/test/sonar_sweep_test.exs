@@ -3,11 +3,11 @@ defmodule SonarSweepTest do
   doctest SonarSweep
 
   test "solves the first part" do
-    assert SonarSweep.count_increases((input_ints)) == 1475
+    assert SonarSweep.count_increases((input_ints())) == 1475
   end
 
   test "solves the second part" do
-    assert SonarSweep.count_in_windows((input_ints)) == 1516
+    assert SonarSweep.count_in_windows((input_ints())) == 1516
   end
 
   def input(path \\ "input.txt"), do: File.read!(path)
