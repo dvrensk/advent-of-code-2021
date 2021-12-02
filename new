@@ -32,6 +32,7 @@ echo " done."
 ruby -e 'html = $stdin.read; html.scan(/<pre>[^<]*<code>([^<]*)/) {|c| puts %Q!def sample() do\n"""\n%s"""\nend! % c }' < $dirname/day.html > $dirname/samples.exs
 ruby -e 'html = $stdin.read; html.scan(/<pre>[^<]*<code>([^<]*)/) {|c,no| puts %Q!def sample() do\n  [%s]\nend! % c.split.join(",") }' < $dirname/day.html >> $dirname/samples.exs
 echo "You might want to copy the samples from $dirname/samples.exs to your code."
+cat test_helpers.exs >> $dirname/test/*_test.exs
 
 cmd="code $dirname"
 echo -n $cmd | pbcopy
