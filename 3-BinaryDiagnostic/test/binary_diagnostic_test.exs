@@ -2,8 +2,12 @@ defmodule BinaryDiagnosticTest do
   use ExUnit.Case
   doctest BinaryDiagnostic
 
-  test "greets the world" do
+  test "solves part 1" do
     assert BinaryDiagnostic.ge(input_lines()) == {3259, 836}
+  end
+
+  test "solves part 2" do
+    assert BinaryDiagnostic.p2(input_lines()) == {4023, 690}
   end
 
   def input(path \\ "input.txt"), do: File.read!(path)
