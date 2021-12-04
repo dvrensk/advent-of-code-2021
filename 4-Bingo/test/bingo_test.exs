@@ -6,6 +6,10 @@ defmodule BingoTest do
     assert Bingo.top_score(input_paragraphs()) == {784, 51}
   end
 
+  test "solves part 2" do
+    assert Bingo.last(input_paragraphs()) == {116, 73}
+  end
+
   def input(path \\ "input.txt"), do: File.read!(path)
   def input_words(path \\ "input.txt"), do: input(path) |> String.split(~r/\s+/, trim: true)
   def input_lines(path \\ "input.txt"), do: input(path) |> String.split("\n", trim: true)

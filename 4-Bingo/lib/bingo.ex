@@ -13,7 +13,23 @@ defmodule Bingo do
     boards
     |> Enum.map(&twoboards/1)
     |> List.foldl([], fn {a, b}, acc -> [a, b | acc] end)
-    |> draw_balls(balls)
+    |> draw_balls_until_first_winner(balls)
+  end
+
+  @doc """
+  iex> Bingo.sample()
+  ...> |> String.split("\\n\\n", trim: true)
+  ...> |> Bingo.last()
+  {148, 13}
+  """
+  def last([balls | boards]) do
+    balls =
+      balls
+      |> String.split(",", trim: true)
+
+    boards
+    |> Enum.map(&twoboards/1)
+    |> draw_balls_until_last_winner(balls)
   end
 
   def twoboards(str) do
@@ -26,44 +42,55 @@ defmodule Bingo do
     {a, b}
   end
 
-  def draw_balls(boards, [ball | rest]) do
-    new_boards = draw_ball(ball, boards)
+  def draw_balls_until_first_winner(boards, [ball | rest]) do
+    new_boards =
+      boards
+      |> Enum.map(&draw_ball(ball, &1))
 
-    bingo =
+    winner =
       new_boards
-      |> Enum.find(
-        &Enum.any?(&1, fn
-          [] -> true
-          _ -> false
-        end)
-      )
+      |> Enum.find(&bingo?/1)
 
-    if bingo do
-      value =
-        bingo
-        |> List.flatten()
-        |> Enum.map(&String.to_integer/1)
-        |> Enum.sum()
-
-      {value, String.to_integer(ball)}
+    if winner do
+      {value(winner), String.to_integer(ball)}
     else
-      draw_balls(new_boards, rest)
+      draw_balls_until_first_winner(new_boards, rest)
     end
   end
 
-  def draw_ball(ball, boards) do
-    boards
-    |> Enum.map(&draw_ball1(ball, &1))
+  def value(board) do
+    board
+    |> List.flatten()
+    |> Enum.map(&String.to_integer/1)
+    |> Enum.sum()
   end
 
-  def draw_ball1(ball, board) do
+  def draw_balls_until_last_winner(boards, [ball | rest]) do
+    new_boards =
+      boards
+      |> Enum.map(fn {a, b} -> {draw_ball(ball, a), draw_ball(ball, b)} end)
+
+    new_boards
+    |> Enum.reject(fn {a, b} -> bingo?(a) || bingo?(b) end)
+    |> case do
+      [] -> {value(hd(new_boards) |> elem(0)), String.to_integer(ball)}
+      playing -> draw_balls_until_last_winner(playing, rest)
+    end
+  end
+
+  def draw_ball(ball, board) do
+    filter = &Kernel.==(ball, &1)
+
     board
-    |> Enum.map(
-      &Enum.reject(&1, fn
-        ^ball -> true
-        _ -> false
-      end)
-    )
+    |> Enum.map(&Enum.reject(&1, filter))
+  end
+
+  def bingo?(board) do
+    board
+    |> Enum.any?(fn
+      [] -> true
+      _ -> false
+    end)
   end
 
   def sample() do
