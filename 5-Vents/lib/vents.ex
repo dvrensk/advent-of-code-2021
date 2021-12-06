@@ -4,37 +4,22 @@ defmodule Vents do
   ...> |> String.split("\\n", trim: true)
   ...> |> Vents.count(2)
   5
-  """
-  def count(list, minimum) do
-    list
-    |> Enum.map(fn s ->
-      Regex.scan(~r/\d+/, s)
-      |> List.flatten()
-      |> Enum.map(&String.to_integer/1)
-    end)
-    |> Enum.filter(fn [x1, y1, x2, y2] -> x1 == x2 || y1 == y2 end)
-    |> Enum.map(&expand/1)
-    |> List.flatten()
-    |> Enum.reduce(%{}, &Map.update(&2, &1, 1, fn a -> a + 1 end))
-    |> Enum.count(fn {_, c} -> c >= minimum end)
-  end
-
-  @doc """
   iex> Vents.sample()
   ...> |> String.split("\\n", trim: true)
-  ...> |> Vents.count2(2)
+  ...> |> Vents.count(2, true)
   12
   """
-  def count2(list, minimum) do
+  def count(list, minimum, keep_all \\ false) do
     list
-    |> Enum.map(fn s ->
-      Regex.scan(~r/\d+/, s)
+    |> Enum.map(fn row ->
+      Regex.scan(~r/\d+/, row)
       |> List.flatten()
       |> Enum.map(&String.to_integer/1)
     end)
+    |> Enum.filter(fn [x1, y1, x2, y2] -> keep_all || x1 == x2 || y1 == y2 end)
     |> Enum.map(&expand/1)
     |> List.flatten()
-    |> Enum.reduce(%{}, &Map.update(&2, &1, 1, fn a -> a + 1 end))
+    |> Enum.frequencies()
     |> Enum.count(fn {_, c} -> c >= minimum end)
   end
 
@@ -50,8 +35,8 @@ defmodule Vents do
 
   def expand([x1, y1, x2, y2]) do
     Enum.zip(
-      (if x1>x2, do: x1..x2//-1, else: x1..x2),
-      (if y1>y2, do: y1..y2//-1, else: y1..y2)
+      if(x1 > x2, do: x1..x2//-1, else: x1..x2),
+      if(y1 > y2, do: y1..y2//-1, else: y1..y2)
     )
   end
 

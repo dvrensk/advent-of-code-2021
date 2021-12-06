@@ -7,7 +7,7 @@ defmodule VentsTest do
   end
 
   test "solves part 2" do
-    assert Vents.count2(input_lines(), 2) == 21577
+    assert Vents.count(input_lines(), 2, true) == 21577
   end
 
   def input(path \\ "input.txt"), do: File.read!(path)
