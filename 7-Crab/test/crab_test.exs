@@ -6,6 +6,10 @@ defmodule CrabTest do
     assert Crab.p1(input_ints()) == {329, 340_052}
   end
 
+  test "solves part 2" do
+    assert Crab.p2(input_ints()) == {466, 92_948_968}
+  end
+
   def input(path \\ "input.txt"), do: File.read!(path)
   def input_words(path \\ "input.txt"), do: input(path) |> String.split(~r/\s+/, trim: true)
   def input_lines(path \\ "input.txt"), do: input(path) |> String.split("\n", trim: true)
