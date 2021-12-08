@@ -10,6 +10,74 @@ defmodule SevenSegments do
     |> Enum.count()
   end
 
+  @doc """
+  iex> SevenSegments.p2(SevenSegments.sample())
+  61229
+  """
+  def p2(text) do
+    text
+    |> String.split("\n", trim: true)
+    |> Enum.map(&p21/1)
+    |> Enum.sum()
+  end
+
+  @doc """
+  iex> SevenSegments.sample()
+  ...> |> String.split("\\n", trim: true)
+  ...> |> hd()
+  ...> |> SevenSegments.p21()
+  8394
+  """
+  def p21(line) do
+    {ten, riddle} =
+      Regex.scan(~r/\w+/, line)
+      |> Enum.map(fn [s] -> String.codepoints(s) |> MapSet.new() end)
+      |> Enum.split(10)
+
+    {one, rest} = size(2, ten)
+    {four, rest} = size(4, rest)
+    {seven, rest} = size(3, rest)
+    {eight, rest} = size(7, rest)
+
+    almost_nine = MapSet.union(four, seven)
+    {nine, rest} = remove(rest, &MapSet.subset?(almost_nine, &1))
+
+    almost_six = MapSet.difference(eight, one)
+    {six, rest} = remove(rest, &MapSet.subset?(almost_six, &1))
+
+    {zero, rest} = size(6, rest)
+
+    e = MapSet.difference(eight, nine)
+
+    five = MapSet.difference(six, e)
+    rest = Enum.reject(rest, fn e -> MapSet.equal?(e, five) end)
+
+    # We're missing 2 & 3. Only 2 has e.
+    {two, [three]} = remove(rest, &MapSet.subset?(e, &1))
+
+    all = [zero, one, two, three, four, five, six, seven, eight, nine]
+
+    riddle
+    |> Enum.map(&Enum.find_index(all, fn e -> MapSet.equal?(e, &1) end))
+    |> List.foldl(0, fn n, a -> a * 10 + n end)
+  end
+
+  def size(n, list) do
+    remove(list, fn s -> MapSet.size(s) == n end)
+  end
+
+  @doc """
+  iex> SevenSegments.remove([1,2,3,4], fn a -> a == 3 end)
+  {3, [1, 2, 4]}
+  """
+  def remove(enumerable, predicate) do
+    %{true => [target], false => rest} =
+      enumerable
+      |> Enum.group_by(predicate)
+
+    {target, rest}
+  end
+
   def sample() do
     """
     be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
