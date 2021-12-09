@@ -12,18 +12,41 @@ defmodule SmokeBasin do
     |> Enum.sum()
   end
 
-  def local_min?({{r, c}, h} = node, map) do
-    [
-      {-1, 0},
-      {+1, 0},
-      {0, -1},
-      {0, +1}
-    ]
-    |> Enum.all?(fn
-      {dr, dc} ->
-        val = Map.get(map, {r + dr, c + dc})
-        is_nil(val) || val > h
-    end)
+  @doc """
+  iex> SmokeBasin.p2(SmokeBasin.sample())
+  1134
+  """
+  def p2(text) do
+    {map, _max_r, _max_c} = parse(text)
+
+    map
+    |> Enum.filter(&local_min?(&1, map))
+    |> Enum.map(&basin(&1, map))
+    |> Enum.sort_by(fn list -> -length(list) end)
+    |> Enum.take(3)
+    |> List.foldl(1, fn b, acc -> length(b) * acc end)
+  end
+
+  def basin({pos, _}, map), do: basin(MapSet.new([pos]), [pos], map)
+
+  def basin(set, [], _), do: MapSet.to_list(set)
+
+  def basin(set, [pos0 | rest], map) do
+    more =
+      adjacent(pos0)
+      |> Enum.reject(fn pos -> MapSet.member?(set, pos) || Map.get(map, pos, 9) > 8 end)
+
+    basin(MapSet.union(set, MapSet.new(more)), more ++ rest, map)
+  end
+
+  def local_min?({pos, h} = _node, map) do
+    adjacent(pos)
+    |> Enum.all?(fn pos -> Map.get(map, pos, 9) > h end)
+  end
+
+  def adjacent({r, c}) do
+    [{-1, 0}, {+1, 0}, {0, -1}, {0, +1}]
+    |> Enum.map(fn {dr, dc} -> {r + dr, c + dc} end)
   end
 
   def parse(string) do
