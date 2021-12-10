@@ -1,0 +1,56 @@
+#! /usr/bin/env bash
+
+day=$1
+name=$2
+if [ "$name" == "" ]; then
+    echo "Usage: $0 day ModuleName"
+    exit 1
+fi
+dirname="$day-$name"
+
+ruby -e 'html = $stdin.read; html.scan(/<pre>[^<]*<code>([^<]*)/) {|c| puts %Q!def sample() do\n"""\n%s"""\nend! % c }' < $dirname/day.html > $dirname/samples.exs
+ruby -e 'html = $stdin.read; html.scan(/<pre>[^<]*<code>([^<]*)/) {|c,no| puts %Q!def sample() do\n  [%s]\nend! % c.split.join(",") }' < $dirname/day.html >> $dirname/samples.exs
+string_samples=$(ruby -e 'html = $stdin.read; html.scan(/<pre>[^<]*<code>(.*?)<.code>/m) {|c,no| puts %Q!  def sample() do\n    """\n%s    """\n  end! % c.gsub("&lt;","<").gsub("&gt;",">").gsub(/^/,"    ").chomp.sub(/\z/,"\n") }' < $dirname/day.html)
+list_samples=$(ruby -e 'html = $stdin.read; html.scan(/<pre>[^<]*<code>(.*?)<.code>/m) {|c,no| puts %Q!  def sample() do\n    [%s]\n  end! % c.gsub("&lt;","<").gsub("&gt;",">").split.join(",") }' < $dirname/day.html)
+echo "You might want to copy the samples from $dirname/samples.exs to your code."
+
+sed -i '' '5,$ d' $dirname/test/*_test.exs
+cat <<EOT >> $dirname/test/*_test.exs
+  # test "Solves part 1" do
+  #   assert $name.p1(input()) == 42
+  # end
+
+  # test "Solves part 2" do
+  #   assert $name.p2(input()) == 42
+  # end
+EOT
+cat test_helpers.exs >> $dirname/test/*_test.exs
+
+cat <<EOT > $dirname/lib/*.ex
+defmodule $name do
+  @doc """
+  iex> $name.sample()
+  ...> |> $name.p1()
+  42
+  """
+  def p1(text) do
+    42
+  end
+
+  @doc """
+  iex> $name.sample()
+  ...> |> $name.p2()
+  42
+  """
+  def p2(_text) do
+    42
+  end
+
+$string_samples
+$list_samples
+end
+EOT
+
+cmd="code $dirname $dirname/lib/*.ex $dirname/test/*_test.exs"
+echo -n $cmd | pbcopy
+echo "Next: run \`$cmd\`.  It's on the clipboard."

@@ -5,6 +5,11 @@
   def input_paragraphs(path \\ "input.txt"), do: input(path) |> String.split("\n\n", trim: true)
 
   def input_ints(path \\ "input.txt"),
-    do: input(path) |> String.split() |> Enum.map(&String.to_integer/1)
+    do:
+      input(path)
+      |> (&Regex.scan(~r/-?\d+/, &1)).()
+      |> List.flatten()
+      |> Enum.map(&String.to_integer/1)
 
   def assert_eq(a, b), do: assert(a == b)
+end
