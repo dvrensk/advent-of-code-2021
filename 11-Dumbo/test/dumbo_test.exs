@@ -6,9 +6,9 @@ defmodule DumboTest do
     assert Dumbo.p1(input()) == 1741
   end
 
-  # test "Solves part 2" do
-  #   assert Dumbo.p2(input()) == 42
-  # end
+  test "Solves part 2" do
+    assert Dumbo.p2(input()) == 440
+  end
 
   def input(path \\ "input.txt"), do: File.read!(path)
   def input_words(path \\ "input.txt"), do: input(path) |> String.split(~r/\s+/, trim: true)

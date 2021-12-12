@@ -18,10 +18,18 @@ defmodule Dumbo do
   @doc """
   iex> Dumbo.sample()
   ...> |> Dumbo.p2()
-  42
+  195
   """
-  def p2(_text) do
-    42
+  def p2(text) do
+    p2(parse(text), 0, 0)
+  end
+
+  def p2(_map, 100, n), do: n
+
+  def p2(map, _, n) do
+    next = gen(map)
+    c = Enum.count(next, fn {_, n} -> n == 0 end)
+    p2(next, c, n + 1)
   end
 
   @doc """
