@@ -6,9 +6,10 @@ defmodule PathsTest do
     assert Paths.p1(input()) == 3298
   end
 
-  # test "Solves part 2" do
-  #   assert Paths.p2(input()) == 42
-  # end
+  # not 172927. too high.
+  test "Solves part 2" do
+    assert Paths.p2(input()) == 93572
+  end
 
   def input(path \\ "input.txt"), do: File.read!(path)
   def input_words(path \\ "input.txt"), do: input(path) |> String.split(~r/\s+/, trim: true)
